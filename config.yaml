@@ -1,0 +1,17 @@
+# ziyue Global Configuration
+system:
+  mode: debug
+  port: 8080
+  dbtype: mysql
+
+# mysql connect configuration
+mysql:
+  path: '127.0.0.1:3306'
+  config: 'charset=utf8mb4&parseTime=True&loc=Local'
+  dbname: 'ziyue'
+  username: 'root'
+  password: '1qaz@WSX'
+  max-idle-conns: 10
+  max-open-conns: 100
+  log-mode: false
+  log-zap: ""
