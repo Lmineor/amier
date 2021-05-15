@@ -24,9 +24,10 @@ func InitRouter() *gin.Engine {
 
 	v1 := r.Group("/v1")
 	{
-		v1.GET("/author", api.GetPoems)
-
+		v1.GET("/poet", api.GetPoet)
+		v1.POST("/poet", api.CreatePoet)
 		v1.GET("/like", api.GetPoemLike)
+		v1.POST("/poem", api.CreatePoem)
 
 		// v1.GET("/ts",controller.TangShiPaginate)
 		// v1.GET("/ts/favour",controller.TangShiFavour)

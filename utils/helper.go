@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"io/ioutil"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gookit/color"
 )
 
 // ParsePageParams return pageNum and pageSize in the request params
@@ -27,6 +29,13 @@ func ParsePageParams(c *gin.Context) (pageNum, pageSize int) {
 	return
 }
 
-func ParsePoetId(c *gin.Context) (poetId string) {
-	return c.Query("id")
+func ParsePoetUUId(c *gin.Context) (uuid string) {
+	return c.Query("uuid")
+}
+
+func GetReqBody(c *gin.Context) string {
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	color.Info.Println(string(body))
+	color.Info.Printf("format is %T\n", string(body))
+	return "123"
 }

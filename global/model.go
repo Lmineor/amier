@@ -1,14 +1,20 @@
 package global
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type CommonModel struct {
-	gorm.Model
-	Uuid string `json:"uuid" form:"uuid" gorm:"column:uuid;comment:uuid"`
+	ID        uint           `json:"-" gorm:"primarykey"`
+	CreatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-"`
+	UUID      string         `json:"uuid" form:"uuid" gorm:"column:uuid;comment:uuid"`
 }
 
 type Like struct {
 	CommonModel
-	Ilike uint   `json:"ilike" gorm:"column:i_like;comment:like"`
-	Uuid  string `json:"uuid" form:"uuid" gorm:"column:uuid;comment:uuid"`
+	Ilike uint `json:"ilike" gorm:"column:i_like;comment:like"`
 }

@@ -1,100 +1,61 @@
 package service
 
 import (
-	"fmt"
+	"errors"
 	"ziyue/global"
 	"ziyue/model"
+	"ziyue/utils"
+
+	"github.com/gookit/color"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func GetPoetIntro(id string) (poet model.Poet, err error) {
-	fmt.Println(id)
-	err = global.ZDB.Where("id = ?", id).First(&poet).Error
+func GetPoetInfo(uuid string) (poet model.Poet, err error) {
+	err = global.ZDB.Where("uuid = ?", uuid).First(&poet).Error
 	return
 }
 
-// func LunYuPaginate(c *gin.Context) {
+func GetPoets(c *gin.Context) (list []model.Poet, total int64, err error) {
+	pageNum, pageSize := utils.ParsePageParams(c)
+	limit := pageSize
+	offset := (pageNum - 1) * pageSize
+	var poetList []model.Poet
 
-// 	pageNum, pageSize := helper.ParsePageParams(c)
+	db := global.ZDB.Model(&model.Poet{})
+	err = db.Count(&total).Error
+	err = db.Limit(limit).Offset(offset).Find(&poetList).Error
+	return poetList, total, err
+}
 
-// 	result, err := new(model.Poem).List(pageNum, pageSize)
+func CreatePoet(p model.Poet) (createdPoet model.Poet, err error) {
+	var poet model.Poet
+	if !errors.Is(global.ZDB.Where("poet = ? AND dynasty = ?", p.Poet, p.Dynasty).First(&poet).Error, gorm.ErrRecordNotFound) { // 判断诗人是否已存在
+		return createdPoet, errors.New("该诗人已存在")
+	}
 
-// 	if err != nil {
-// 		c.JSON(http.StatusOK, gin.H{
-// 			"status": false,
-// 			"data":   "",
-// 			"msg":    err.Error(),
-// 		})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"status": true,
-// 		"data":   result,
-// 		"msg":    "查询成功",
-// 	})
+	// 生成uuid 并存储
+	p.UUID = utils.GeneratorUUID()
+	err = global.ZDB.Create(&p).Error
+	return p, err
+}
 
-// }
+func CreatePoem(p *model.Poem, poet, dynasty string) (err error) {
+	pId, _ := GetPoetIdOrCreatePoet(poet, dynasty)
+	p.PoetID = pId
+	p.UUID = utils.GeneratorUUID()
+	return global.ZDB.Create(&p).Error
+}
 
-// func CreateExaCustomer(e model.ExaCustomer) (err error) {
-// 	err = global.GVA_DB.Create(&e).Error
-// 	return err
-// }
-
-// //@author: [piexlmax](https://github.com/piexlmax)
-// //@function: DeleteFileChunk
-// //@description: 删除客户
-// //@param: e model.ExaCustomer
-// //@return: err error
-
-// func DeleteExaCustomer(e model.ExaCustomer) (err error) {
-// 	err = global.GVA_DB.Delete(&e).Error
-// 	return err
-// }
-
-// //@author: [piexlmax](https://github.com/piexlmax)
-// //@function: UpdateExaCustomer
-// //@description: 更新客户
-// //@param: e *model.ExaCustomer
-// //@return: err error
-
-// func UpdateExaCustomer(e *model.ExaCustomer) (err error) {
-// 	err = global.GVA_DB.Save(e).Error
-// 	return err
-// }
-
-// //@author: [piexlmax](https://github.com/piexlmax)
-// //@function: GetExaCustomer
-// //@description: 获取客户信息
-// //@param: id uint
-// //@return: err error, customer model.ExaCustomer
-
-// func GetExaCustomer(id uint) (err error, customer model.ExaCustomer) {
-// 	err = global.GVA_DB.Where("id = ?", id).First(&customer).Error
-// 	return
-// }
-
-// //@author: [piexlmax](https://github.com/piexlmax)
-// //@function: GetCustomerInfoList
-// //@description: 分页获取客户列表
-// //@param: sysUserAuthorityID string, info request.PageInfo
-// //@return: err error, list interface{}, total int64
-
-// func GetCustomerInfoList(sysUserAuthorityID string, info request.PageInfo) (err error, list interface{}, total int64) {
-// 	limit := info.PageSize
-// 	offset := info.PageSize * (info.Page - 1)
-// 	db := global.GVA_DB.Model(&model.ExaCustomer{})
-// 	var a model.SysAuthority
-// 	a.AuthorityId = sysUserAuthorityID
-// 	err, auth := GetAuthorityInfo(a)
-// 	var dataId []string
-// 	for _, v := range auth.DataAuthorityId {
-// 		dataId = append(dataId, v.AuthorityId)
-// 	}
-// 	var CustomerList []model.ExaCustomer
-// 	err = db.Where("sys_user_authority_id in ?", dataId).Count(&total).Error
-// 	if err != nil {
-// 		return err, CustomerList, total
-// 	} else {
-// 		err = db.Limit(limit).Offset(offset).Preload("SysUser").Where("sys_user_authority_id in ?", dataId).Find(&CustomerList).Error
-// 	}
-// 	return err, CustomerList, total
-// }
+func GetPoetIdOrCreatePoet(poet, dynasty string) (id uint, err error) {
+	var p model.Poet
+	err = global.ZDB.Where("poet = ? AND dynasty = ?", poet, dynasty).First(&p).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		color.Errorf("ERROR: Cant not fetch poet %s's id, we create it.", poet)
+		newPoet := &model.Poet{Poet: poet, Dynasty: dynasty}
+		createdPoet, err := CreatePoet(*newPoet)
+		return createdPoet.ID, err
+	}
+	return p.ID, err
+}
