@@ -29,7 +29,7 @@ func ParsePageParams(c *gin.Context) (pageNum, pageSize int) {
 	return
 }
 
-func ParsePoetUUId(c *gin.Context) (uuid string) {
+func ParseReqUUId(c *gin.Context) (uuid string) {
 	return c.Query("uuid")
 }
 

@@ -15,6 +15,5 @@ type CommonModel struct {
 }
 
 type Like struct {
-	CommonModel
-	Ilike uint `json:"ilike" gorm:"column:i_like;comment:like"`
+	Ilike uint `json:"ilike" gorm:"column:like;comment:like"`
 }

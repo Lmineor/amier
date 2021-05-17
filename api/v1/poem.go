@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 	"ziyue/model"
 	"ziyue/model/response"
 	"ziyue/service"
@@ -12,14 +13,14 @@ import (
 )
 
 type createPoemStruct struct {
-	Poem       string `json:"poem"`
-	Paragraphs string `json:"paragraphs"`
-	Poet       string `json:"poet"`
-	Dynasty    string `json:"dynasty"`
+	Poem       string   `json:"poem"`
+	Paragraphs []string `json:"paragraphs"`
+	Poet       string   `json:"poet"`
+	Dynasty    string   `json:"dynasty"`
 }
 
 func GetPoet(c *gin.Context) {
-	uuid := utils.ParsePoetUUId(c)
+	uuid := utils.ParseReqUUId(c)
 	if uuid == "" {
 		if poetList, total, err := service.GetPoets(c); err != nil {
 			response.FailWithMessage("error", c)
@@ -28,9 +29,20 @@ func GetPoet(c *gin.Context) {
 		}
 	} else {
 		if poet, err := service.GetPoetInfo(uuid); err != nil {
+			color.Info.Print(err)
 			response.FailWithMessage("没有这个诗人的记录", c)
 		} else {
-			response.OkWithDetailed(response.PoetResponse{Poet: poet}, "success", c)
+			poems := make([]string, 0)
+			for _, poem := range poet.Poems {
+				poems = append(poems, poem.UUID)
+			}
+			response.OkWithData(response.PoetResponse{
+				Poet:    poet.Poet,
+				Dynasty: poet.Dynasty,
+				Descb:   poet.Descb,
+				UUID:    poet.UUID,
+				Poems:   poems,
+			}, c)
 		}
 	}
 
@@ -58,12 +70,6 @@ func GetPoemLike(c *gin.Context) {
 func CreatePoet(c *gin.Context) {
 	var poet model.Poet
 	_ = c.ShouldBindJSON(&poet)
-	// if err := utils.Verify(R, utils.RegisterVerify); err != nil {
-	// 	response.FailWithMessage(err.Error(), c)
-	// 	return
-	// } else {
-
-	// }
 	p := &model.Poet{Poet: poet.Poet, Dynasty: poet.Dynasty, Descb: poet.Descb}
 	_, err := service.CreatePoet(*p)
 	if err != nil {
@@ -78,10 +84,31 @@ func CreatePoet(c *gin.Context) {
 func CreatePoem(c *gin.Context) {
 	var poem createPoemStruct
 	c.ShouldBindJSON(&poem)
-	newPoem := &model.Poem{Paragraphs: poem.Paragraphs, Poem: poem.Poem}
+	newPoem := &model.Poem{Paragraphs: strings.Join(poem.Paragraphs, "|"), Poem: poem.Poem}
 	err := service.CreatePoem(newPoem, poem.Poet, poem.Dynasty)
 	if err != nil {
 		color.Errorf("Create poem failed for %s", err)
 	}
 	response.Ok(c)
+}
+
+func GetPoem(c *gin.Context) {
+	uuid := utils.ParseReqUUId(c)
+	if uuid == "" {
+		service.GetPoems()
+		response.Ok(c)
+	} else {
+		poem, err := service.GetPoem(uuid)
+		if err != nil {
+			response.FailWithMessage("无记录", c)
+		} else {
+			pUUID, _ := service.GetPoetUUID(poem.ID)
+			response.OkWithData(response.PoemResponse{
+				Poem:       poem.Poem,
+				UUID:       uuid,
+				Paragraphs: strings.Split(poem.Paragraphs, "|"),
+				PoetUUID:   pUUID,
+			}, c)
+		}
+	}
 }
