@@ -8,8 +8,8 @@ import (
 
 	"github.com/gookit/color"
 
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func GetPoetInfo(uuid string) (poet model.Poet, err error) {
@@ -17,8 +17,8 @@ func GetPoetInfo(uuid string) (poet model.Poet, err error) {
 	return
 }
 
-func GetPoets(c *gin.Context) (list []model.Poet, total int64, err error) {
-	pageNum, pageSize := utils.ParsePageParams(c)
+func GetPoets(pageNum, pageSize int) (list []model.Poet, total int64, err error) {
+
 	limit := pageSize
 	offset := (pageNum - 1) * pageSize
 	var poetList []model.Poet
@@ -36,15 +36,18 @@ func CreatePoet(p model.Poet) (createdPoet model.Poet, err error) {
 	}
 	// 生成uuid 并存储
 	p.UUID = utils.GeneratorUUID()
-	err = global.ZDB.Create(&p).Error
+	err = global.ZDB.Omit(clause.Associations).Create(&p).Error
 	return p, err
 }
 
 func CreatePoem(p *model.Poem, poet, dynasty string) (err error) {
-	pId, _ := GetPoetIdOrCreatePoet(poet, dynasty)
-	p.PoetID = pId
+	poetId, _ := GetPoetIdOrCreatePoet(poet, dynasty)
+	likeIndex, _ := InsertPoemId2LikePoem()
+	p.PoetID = poetId
 	p.UUID = utils.GeneratorUUID()
-	return global.ZDB.Create(&p).Error
+	p.LikePoemID = likeIndex
+	err = global.ZDB.Create(&p).Error
+	return
 }
 
 func GetPoetIdOrCreatePoet(poet, dynasty string) (uint, error) {
@@ -68,11 +71,18 @@ func GetPoetUUID(pid uint) (uuid string, err error) {
 	return p.UUID, nil
 
 }
-func GetPoems() {
-	return
+func InsertPoemId2LikePoem() (index uint, err error) {
+	like := &model.LikePoem{}
+	like.Ilike = 0
+	err = global.ZDB.Create(like).Error
+	return like.ID, err
 }
 
 func GetPoem(uuid string) (poem model.Poem, err error) {
 	err = global.ZDB.Where("uuid = ?", uuid).First(&poem).Error
 	return
+}
+
+func GetPoems() {
+
 }
