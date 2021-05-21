@@ -20,7 +20,6 @@ var runCmd = &cobra.Command{
 		w := utils.NewWatch()
 		t := utils.NewT()
 		path, _ := os.Getwd()
-		fmt.Println("adfafda")
 		fmt.Println(path)
 		go w.Watch(path, t)
 		t.RunTask()

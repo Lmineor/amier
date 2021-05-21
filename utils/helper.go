@@ -8,6 +8,11 @@ import (
 	"github.com/gookit/color"
 )
 
+const (
+	PomeLike    = 1 // 获取poem的like
+	ShijingLike = 2 //获取诗经的like
+)
+
 // ParsePageParams return pageNum and pageSize in the request params
 func ParsePageParams(c *gin.Context) (pageNum, pageSize int) {
 	var err error
@@ -38,4 +43,18 @@ func GetReqBody(c *gin.Context) string {
 	color.Info.Println(string(body))
 	color.Info.Printf("format is %T\n", string(body))
 	return "123"
+}
+
+func GetLikeMode(c *gin.Context) string {
+	mode := c.Query("type")
+	switch mode {
+	case "shijing":
+		return mode
+	case "poem":
+		return mode
+	case "lunyu":
+		return mode
+	default:
+		return "poem"
+	}
 }

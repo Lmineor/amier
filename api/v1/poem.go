@@ -1,7 +1,6 @@
 package api
 
 import (
-	"net/http"
 	"strings"
 	"ziyue/model"
 	"ziyue/model/response"
@@ -22,7 +21,8 @@ type createPoemStruct struct {
 func GetPoet(c *gin.Context) {
 	uuid := utils.ParseReqUUId(c)
 	if uuid == "" {
-		if poetList, total, err := service.GetPoets(c); err != nil {
+		pageNum, pageSize := utils.ParsePageParams(c)
+		if poetList, total, err := service.GetPoets(pageNum, pageSize); err != nil {
 			response.FailWithMessage("error", c)
 		} else {
 			response.OkWithData(response.PoetsResponse{Poets: poetList, Total: total}, c)
@@ -48,25 +48,25 @@ func GetPoet(c *gin.Context) {
 
 }
 
-func GetPoemLike(c *gin.Context) {
-	pageNum, pageSize := utils.ParsePageParams(c)
-	like, err := service.GetLikePoemList(pageNum, pageSize)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"status": false,
-			"data":   "error",
-			"msg":    err.Error(),
-		})
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"status": true,
-			"data":   like,
-			"msg":    "success",
-		})
-	}
-}
+// func GetPoemLike(c *gin.Context) {
+// 	pageNum, pageSize := utils.ParsePageParams(c)
+// 	like, err := service.GetLikePoemList(pageNum, pageSize)
+// 	if err != nil {
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"status": false,
+// 			"data":   "error",
+// 			"msg":    err.Error(),
+// 		})
+// 	} else {
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"status": true,
+// 			"data":   like,
+// 			"msg":    "success",
+// 		})
+// 	}
+// }
 
-// CreatePoet according to request
+// CreatePoet from request
 func CreatePoet(c *gin.Context) {
 	var poet model.Poet
 	_ = c.ShouldBindJSON(&poet)
@@ -111,4 +111,18 @@ func GetPoem(c *gin.Context) {
 			}, c)
 		}
 	}
+}
+
+func GetLike(c *gin.Context) {
+	pageNum, pageSize := utils.ParsePageParams(c)
+	mode := utils.GetLikeMode(c)
+	switch mode {
+	case "poem":
+		data, _ := service.GetLikePoemList(pageNum, pageSize)
+		response.OkWithData(data, c)
+	default:
+		data, _ := service.GetLikePoemList(pageNum, pageSize)
+		response.OkWithData(data, c)
+	}
+
 }

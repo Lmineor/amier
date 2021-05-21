@@ -11,9 +11,10 @@ type CommonModel struct {
 	CreatedAt time.Time      `json:"-"`
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-"`
-	UUID      string         `json:"uuid" form:"uuid" gorm:"column:uuid;comment:uuid"`
+	UUID      string         `json:"uuid" gorm:"column:uuid;comment:uuid"`
 }
 
 type Like struct {
-	Ilike uint `json:"ilike" gorm:"column:like;comment:like"`
+	ID    uint `json:"-" gorm:"primarykey"`
+	Ilike uint `json:"ilike" gorm:"column:ilike;comment:ilike;default:0"`
 }

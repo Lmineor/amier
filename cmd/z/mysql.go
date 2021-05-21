@@ -50,6 +50,7 @@ func (m *_mysql) AutoMigrateTables() {
 	m.err = m.db.AutoMigrate(
 		new(model.Poem),
 		new(model.Poet),
+		new(model.LikePoem),
 	)
 	if m.err != nil {
 		fmt.Printf("[Mysql] --> 初始化数据表失败, err: %v\n", m.err)
