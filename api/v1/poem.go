@@ -48,24 +48,6 @@ func GetPoet(c *gin.Context) {
 
 }
 
-// func GetPoemLike(c *gin.Context) {
-// 	pageNum, pageSize := utils.ParsePageParams(c)
-// 	like, err := service.GetLikePoemList(pageNum, pageSize)
-// 	if err != nil {
-// 		c.JSON(http.StatusOK, gin.H{
-// 			"status": false,
-// 			"data":   "error",
-// 			"msg":    err.Error(),
-// 		})
-// 	} else {
-// 		c.JSON(http.StatusOK, gin.H{
-// 			"status": true,
-// 			"data":   like,
-// 			"msg":    "success",
-// 		})
-// 	}
-// }
-
 // CreatePoet from request
 func CreatePoet(c *gin.Context) {
 	var poet model.Poet
@@ -94,35 +76,52 @@ func CreatePoem(c *gin.Context) {
 
 func GetPoem(c *gin.Context) {
 	uuid := utils.ParseReqUUId(c)
+
 	if uuid == "" {
-		service.GetPoems()
-		response.Ok(c)
+		GetPoems(c)
 	} else {
 		poem, err := service.GetPoem(uuid)
 		if err != nil {
 			response.FailWithMessage("无记录", c)
 		} else {
 			pUUID, _ := service.GetPoetUUID(poem.ID)
-			response.OkWithData(response.PoemResponse{
-				Poem:       poem.Poem,
-				UUID:       uuid,
-				Paragraphs: strings.Split(poem.Paragraphs, "|"),
-				PoetUUID:   pUUID,
-			}, c)
+			response.OkWithData(utils.ParsePoemSplit(&poem, pUUID), c)
 		}
 	}
 }
 
-func GetLike(c *gin.Context) {
+func GetLikes(c *gin.Context) {
+	var likes []model.Poem
+	var total int64
+	likePoems := make([]response.PoemResponse, 0)
+	respMap := make(map[string]interface{})
+
 	pageNum, pageSize := utils.ParsePageParams(c)
 	mode := utils.GetLikeMode(c)
+
 	switch mode {
 	case "poem":
-		data, _ := service.GetLikePoemList(pageNum, pageSize)
-		response.OkWithData(data, c)
+		likes, total, _ = service.GetLikePoems(pageNum, pageSize)
+		respMap["total"] = total
+		for _, poem := range likes {
+			pUUID, _ := service.GetPoetUUID(poem.ID)
+			likePoems = append(likePoems, *utils.ParsePoemSplit(&poem, pUUID))
+		}
+		respMap["pems"] = likePoems
+
 	default:
-		data, _ := service.GetLikePoemList(pageNum, pageSize)
-		response.OkWithData(data, c)
+		likes, total, _ = service.GetLikePoems(pageNum, pageSize)
+		for _, poem := range likes {
+			pUUID, _ := service.GetPoetUUID(poem.ID)
+			likePoems = append(likePoems, *utils.ParsePoemSplit(&poem, pUUID))
+		}
 	}
 
+	respMap["pems"] = likePoems
+	respMap["total"] = total
+	response.OkWithData(respMap, c)
+}
+
+func GetPoems(c *gin.Context) {
+	GetLikes(c)
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"ziyue/global"
 	"ziyue/model"
 	"ziyue/utils"
@@ -18,7 +19,6 @@ func GetPoetInfo(uuid string) (poet model.Poet, err error) {
 }
 
 func GetPoets(pageNum, pageSize int) (list []model.Poet, total int64, err error) {
-
 	limit := pageSize
 	offset := (pageNum - 1) * pageSize
 	var poetList []model.Poet
@@ -42,10 +42,8 @@ func CreatePoet(p model.Poet) (createdPoet model.Poet, err error) {
 
 func CreatePoem(p *model.Poem, poet, dynasty string) (err error) {
 	poetId, _ := GetPoetIdOrCreatePoet(poet, dynasty)
-	likeIndex, _ := InsertPoemId2LikePoem()
 	p.PoetID = poetId
 	p.UUID = utils.GeneratorUUID()
-	p.LikePoemID = likeIndex
 	err = global.ZDB.Create(&p).Error
 	return
 }
@@ -71,18 +69,18 @@ func GetPoetUUID(pid uint) (uuid string, err error) {
 	return p.UUID, nil
 
 }
-func InsertPoemId2LikePoem() (index uint, err error) {
-	like := &model.LikePoem{}
-	like.Ilike = 0
-	err = global.ZDB.Create(like).Error
-	return like.ID, err
-}
 
 func GetPoem(uuid string) (poem model.Poem, err error) {
 	err = global.ZDB.Where("uuid = ?", uuid).First(&poem).Error
 	return
 }
 
-func GetPoems() {
-
+func GetLikePoems(pageNum, pageSize int) (poemsLike []model.Poem, total int64, err error) {
+	limit := pageSize
+	offset := (pageNum - 1) * pageSize
+	fmt.Printf("limit is %d, offset is %d", limit, offset)
+	db := global.ZDB.Model(&model.Poem{})
+	err = db.Count(&total).Error
+	err = db.Order("ilike desc").Limit(limit).Offset(offset).Find(&poemsLike).Error
+	return
 }

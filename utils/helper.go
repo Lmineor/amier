@@ -3,6 +3,9 @@ package utils
 import (
 	"io/ioutil"
 	"strconv"
+	"strings"
+	"ziyue/model"
+	"ziyue/model/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gookit/color"
@@ -56,5 +59,15 @@ func GetLikeMode(c *gin.Context) string {
 		return mode
 	default:
 		return "poem"
+	}
+}
+
+func ParsePoemSplit(p *model.Poem, poetUUID string) *response.PoemResponse {
+	return &response.PoemResponse{
+		Poem:       p.Poem,
+		UUID:       p.UUID,
+		Paragraphs: strings.Split(p.Paragraphs, "|"),
+		PoetUUID:   poetUUID,
+		Like:       p.Like,
 	}
 }

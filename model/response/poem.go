@@ -1,6 +1,8 @@
 package response
 
-import "ziyue/model"
+import (
+	"ziyue/model"
+)
 
 type PoetsResponse struct {
 	Poets []model.Poet `json:"poets"`
@@ -16,8 +18,13 @@ type PoetResponse struct {
 }
 
 type PoemResponse struct {
-	UUID       string   `json:"uuid"`
 	Paragraphs []string `json:"paragraphs"`
 	Poem       string   `json:"poem"`
+	Like       uint     `json:"ilike"`
+	UUID       string   `json:"uuid"`
 	PoetUUID   string   `json:"poet"`
+}
+
+type PoemsResponse struct {
+	Poems []model.Poem `json:"poems"`
 }
