@@ -59,3 +59,16 @@ func GetPoetUUID(pid uint) (uuid string, err error) {
 	return p.UUID, nil
 
 }
+
+func UpdatePoet(p *model.Poet, uuid string) (poet *model.Poet, err error) {
+	db := global.ZDB
+	err = db.Where("uuid = ?", uuid).First(&poet).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return
+	}
+	poet.Poet = p.Poet
+	poet.Dynasty = p.Dynasty
+	poet.Descb = p.Descb
+	db.Save(&poet)
+	return poet, nil
+}

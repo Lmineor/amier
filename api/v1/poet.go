@@ -54,3 +54,16 @@ func GetPoet(c *gin.Context) {
 	}
 
 }
+
+func UpdatePoet(c *gin.Context) {
+	var poet model.Poet
+	c.ShouldBindJSON(&poet)
+	uuid := utils.ParseReqUUId(c)
+	_, err := service.UpdatePoet(&poet, uuid)
+	color.Debug.Printf("updated peom's uuid is: %s\n", uuid)
+	if err != nil {
+		response.FailWithMessage("记录不存在", c)
+	} else {
+		response.OkWithMessage("更新成功", c)
+	}
+}

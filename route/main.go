@@ -26,6 +26,7 @@ func InitRouter() *gin.Engine {
 	{
 		v1.GET("/poet", api.GetPoet)
 		v1.POST("/poet", api.CreatePoet)
+		v1.PUT("/poet", api.UpdatePoet)
 
 		v1.GET("/like", api.GetLikes)
 		v1.POST("/poem", api.CreatePoem)
