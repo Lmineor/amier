@@ -26,9 +26,11 @@ func InitRouter() *gin.Engine {
 	{
 		v1.GET("/poet", api.GetPoet)
 		v1.POST("/poet", api.CreatePoet)
+
 		v1.GET("/like", api.GetLikes)
 		v1.POST("/poem", api.CreatePoem)
 		v1.GET("/poem", api.GetPoem)
+		v1.PUT("/poem", api.UpdatePoem)
 
 		// v1.GET("/ts",controller.TangShiPaginate)
 		// v1.GET("/ts/favour",controller.TangShiFavour)
