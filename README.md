@@ -27,3 +27,12 @@ go get github.com/spf13/cobra
 `cobra`轮子仓库有介绍
 
 https://github.com/spf13/cobra/blob/master/cobra.go
+
+## zap
+
+日志记录器
+
+### 安装方法
+```shell
+go get go.uber.org/zap
+```
