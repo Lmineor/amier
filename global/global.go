@@ -1,6 +1,7 @@
 package global
 
 import (
+	"go.uber.org/zap"
 	"ziyue/config"
 
 	"github.com/spf13/viper"
@@ -8,7 +9,8 @@ import (
 )
 
 var (
-	ZConfig config.Server
-	ZVP     *viper.Viper
-	ZDB     *gorm.DB
+	Z_CONFIG config.Server
+	Z_VP     *viper.Viper
+	Z_LOG    *zap.Logger
+	Z_DB     *gorm.DB
 )

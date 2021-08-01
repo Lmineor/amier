@@ -14,7 +14,7 @@ import (
 func CreatePoet(c *gin.Context) {
 	var poet model.Poet
 	_ = c.ShouldBindJSON(&poet)
-	p := &model.Poet{Poet: poet.Poet, Dynasty: poet.Dynasty, Descb: poet.Descb}
+	p := &model.Poet{Poet: poet.Poet, Dynasty: poet.Dynasty, Describe: poet.Describe}
 	_, err := service.CreatePoet(*p)
 	if err != nil {
 		color.Error.Renderln(err)
@@ -22,14 +22,13 @@ func CreatePoet(c *gin.Context) {
 	} else {
 		response.Ok(c)
 	}
-
 }
 
 func GetPoet(c *gin.Context) {
 	uuid := utils.ParseReqUUId(c)
 	if uuid == "" {
-		pageNum, pageSize := utils.ParsePageParams(c)
-		if poetList, total, err := service.GetPoets(pageNum, pageSize); err != nil {
+		pageNum, pageSize, showPoems := utils.ParseParams(c)
+		if poetList, total, err := service.GetPoets(pageNum, pageSize, showPoems); err != nil {
 			response.FailWithMessage("error", c)
 		} else {
 			response.OkWithData(response.PoetsResponse{Poets: poetList, Total: total}, c)
@@ -46,13 +45,12 @@ func GetPoet(c *gin.Context) {
 			response.OkWithData(response.PoetResponse{
 				Poet:    poet.Poet,
 				Dynasty: poet.Dynasty,
-				Descb:   poet.Descb,
+				Descb:   poet.Describe,
 				UUID:    poet.UUID,
 				Poems:   poems,
 			}, c)
 		}
 	}
-
 }
 
 func UpdatePoet(c *gin.Context) {

@@ -10,7 +10,7 @@ import (
 )
 
 func Gorm() *gorm.DB {
-	switch global.ZConfig.System.DbType {
+	switch global.Z_CONFIG.System.DbType {
 	case "mysql":
 		return GormMysql()
 	default:
@@ -19,7 +19,7 @@ func Gorm() *gorm.DB {
 }
 
 func GormMysql() *gorm.DB {
-	m := global.ZConfig.Mysql
+	m := global.Z_CONFIG.Mysql
 	dsn := m.Username + ":" + m.Password + "@tcp(" + m.Path + ")/" + m.Dbname + "?" + m.Config
 	fmt.Println(dsn)
 	mysqlConfig := mysql.Config{

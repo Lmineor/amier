@@ -13,7 +13,7 @@ import (
 func InitRouter() *gin.Engine {
 
 	// 设置gin模式
-	gin.SetMode(global.ZConfig.System.Mode)
+	gin.SetMode(global.Z_CONFIG.System.Mode)
 	r := gin.Default()
 
 	r.Use(middlewares.Cors())
@@ -29,6 +29,7 @@ func InitRouter() *gin.Engine {
 		v1.PUT("/poet", api.UpdatePoet)
 
 		v1.GET("/like", api.GetLikes)
+
 		v1.POST("/poem", api.CreatePoem)
 		v1.GET("/poem", api.GetPoem)
 		v1.PUT("/poem", api.UpdatePoem)

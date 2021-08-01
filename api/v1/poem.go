@@ -1,7 +1,9 @@
 package api
 
 import (
+	"go.uber.org/zap"
 	"strings"
+	"ziyue/global"
 	"ziyue/model"
 	"ziyue/model/request"
 	"ziyue/model/response"
@@ -19,6 +21,7 @@ func CreatePoem(c *gin.Context) {
 	err := service.CreatePoem(newPoem, poem.Poet, poem.Dynasty)
 	if err != nil {
 		color.Errorf("Create poem failed for %s", err)
+		global.Z_LOG.Error("创建poem失败！", zap.Any("err", err))
 		response.Fail(c)
 	} else {
 		response.Ok(c)

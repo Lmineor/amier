@@ -15,3 +15,14 @@ mysql:
   max-open-conns: 100
   log-mode: false
   log-zap: ""
+
+zap:
+  level: 'info'
+  format: 'console'
+  prefix: '[Z]'
+  director: 'log'
+  link-name: 'latest_log'
+  show-line: true
+  encode-level: 'LowercaseColorLevelEncoder'
+  stacktrace-key: 'stacktrace'
+  log-in-console: true

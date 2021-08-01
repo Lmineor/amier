@@ -16,8 +16,8 @@ const (
 	ShijingLike = 2 //获取诗经的like
 )
 
-// ParsePageParams return pageNum and pageSize in the request params
-func ParsePageParams(c *gin.Context) (pageNum, pageSize int) {
+// ParseParams return pageNum, pageSize and showPoems in the request params
+func ParseParams(c *gin.Context) (pageNum, pageSize int, showPoems bool) {
 	var err error
 	pageNum, err = strconv.Atoi(c.Query("pageNum"))
 	if err != nil {
@@ -33,6 +33,14 @@ func ParsePageParams(c *gin.Context) (pageNum, pageSize int) {
 		pageSize = 100
 	case pageSize <= 0:
 		pageSize = 10
+	}
+
+	showPoems_ := c.Query("showPoems")
+	switch showPoems_ {
+	case "true", "True", "1", "yes":
+		showPoems = true
+	default:
+		showPoems = false
 	}
 	return
 }

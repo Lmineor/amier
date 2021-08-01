@@ -15,7 +15,7 @@ func GetLikes(c *gin.Context) {
 	likePoems := make([]response.PoemResponse, 0)
 	respMap := make(map[string]interface{})
 
-	pageNum, pageSize := utils.ParsePageParams(c)
+	pageNum, pageSize, _ := utils.ParseParams(c)
 	mode := utils.GetLikeMode(c)
 
 	switch mode {
@@ -26,7 +26,7 @@ func GetLikes(c *gin.Context) {
 			pUUID, _ := service.GetPoetUUID(poem.ID)
 			likePoems = append(likePoems, *utils.ParsePoemSplit(&poem, pUUID))
 		}
-		respMap["pems"] = likePoems
+		respMap["poems"] = likePoems
 
 	default:
 		likes, total, _ = service.GetLikePoems(pageNum, pageSize)

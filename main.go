@@ -9,8 +9,9 @@ import (
 
 func main() {
 
-	global.ZVP = core.Viper("./config.yaml") // 初始化viper
-	global.ZDB = initialize.Gorm()
+	global.Z_VP = core.Viper("./config.yaml") // 初始化viper
+	global.Z_DB = initialize.Gorm()           // gorm连接数据库
+	global.Z_LOG = core.Zap()                 // 初始化zap日志库
 	r := route.InitRouter()
 	r.Run()
 }
