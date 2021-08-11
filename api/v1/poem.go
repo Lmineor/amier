@@ -11,7 +11,6 @@ import (
 	"ziyue/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gookit/color"
 )
 
 func CreatePoem(c *gin.Context) {
@@ -20,7 +19,6 @@ func CreatePoem(c *gin.Context) {
 	newPoem := &model.Poem{Paragraphs: strings.Join(poem.Paragraphs, "|"), Poem: poem.Poem}
 	err := service.CreatePoem(newPoem, poem.Poet, poem.Dynasty)
 	if err != nil {
-		color.Errorf("Create poem failed for %s", err)
 		global.Z_LOG.Error("创建poem失败！", zap.Any("err", err))
 		response.Fail(c)
 	} else {
@@ -36,10 +34,17 @@ func GetPoem(c *gin.Context) {
 	} else {
 		poem, err := service.GetPoem(uuid)
 		if err != nil {
-			response.FailWithMessage("无记录", c)
+			response.FailWithMessage("No record!", c)
 		} else {
 			pUUID, _ := service.GetPoetUUID(poem.ID)
-			response.OkWithData(utils.ParsePoemSplit(&poem, pUUID), c)
+			response.OkWithData(
+				&response.PoemResponse{
+					Poem:       poem.Poem,
+					UUID:       poem.UUID,
+					Paragraphs: strings.Split(poem.Paragraphs, "|"),
+					PoetUUID:   pUUID,
+					Like:       poem.Like},
+				c)
 		}
 	}
 }
@@ -49,7 +54,7 @@ func UpdatePoem(c *gin.Context) {
 	c.ShouldBindJSON(&poem)
 	uuid := utils.ParseReqUUId(c)
 	_, err := service.UpdatePoem(&poem, uuid)
-	color.Debug.Printf("updated peom's uuid is: %s\n", uuid)
+	global.Z_LOG.Info("update poem", zap.String("poem", uuid))
 	if err != nil {
 		response.FailWithMessage("记录不存在", c)
 	} else {
@@ -59,5 +64,5 @@ func UpdatePoem(c *gin.Context) {
 }
 
 func GetPoems(c *gin.Context) {
-	GetLikes(c)
+	//GetLikes(c)
 }

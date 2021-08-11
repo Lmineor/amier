@@ -6,7 +6,6 @@ import (
 	"ziyue/model"
 	"ziyue/utils"
 
-	"github.com/gookit/color"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -45,7 +44,6 @@ func GetPoetIdOrCreatePoet(poet, dynasty string) (uint, error) {
 	var p model.Poet
 	err := global.Z_DB.Where("poet = ? AND dynasty = ?", poet, dynasty).First(&p).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		color.Errorf("ERROR: Cant not fetch poet %s's id, we create it.", poet)
 		newPoet := &model.Poet{Poet: poet, Dynasty: dynasty}
 		createdPoet, err := CreatePoet(*newPoet)
 		return createdPoet.ID, err
@@ -56,7 +54,7 @@ func GetPoetUUID(pid uint) (uuid string, err error) {
 	var p model.Poet
 	err = global.Z_DB.Where("id = ?", pid).First(&p).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		color.Infof("Poet %s not found", pid)
+		global.Z_LOG.Debug("")
 		return "", err
 	}
 	return p.UUID, nil
