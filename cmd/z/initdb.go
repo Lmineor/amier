@@ -21,7 +21,7 @@ var initdbCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		frame, _ := cmd.Flags().GetString("frame")
 		path, _ := cmd.Flags().GetString("path")
-		global.ZVP = core.Viper(path)
+		global.Z_VP = core.Viper(path)
 		// global.GVA_LOG = core.Zap() // 初始化zap日志库
 		Mysql.CheckDatabase()
 		Mysql.CheckUtf8mb4()
@@ -29,7 +29,7 @@ var initdbCmd = &cobra.Command{
 		Mysql.Init()
 		switch frame {
 		case "gin":
-			if global.ZConfig.System.DbType == "mysql" {
+			if global.Z_CONFIG.System.DbType == "mysql" {
 				Mysql.AutoMigrateTables()
 				// Mysql.InitData()
 			}

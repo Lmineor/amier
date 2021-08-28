@@ -27,8 +27,8 @@ func CreatePoet(c *gin.Context) {
 func GetPoet(c *gin.Context) {
 	uuid := utils.ParseReqUUId(c)
 	if uuid == "" {
-		pageNum, pageSize, showPoems := utils.ParseParams(c)
-		if poetList, total, err := service.GetPoets(pageNum, pageSize, showPoems); err != nil {
+		params, _ := utils.ParseParams(c)
+		if poetList, total, err := service.GetPoets(params); err != nil {
 			response.FailWithMessage("error", c)
 		} else {
 			response.OkWithData(response.PoetsResponse{Poets: poetList, Total: total}, c)

@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gookit/color"
+	uuid "github.com/satori/go.uuid"
 	"io/ioutil"
 	"strconv"
 )
@@ -13,8 +14,10 @@ const (
 )
 
 // ParseParams return pageNum, pageSize and showPoems in the request params
-func ParseParams(c *gin.Context) (pageNum, pageSize int, showPoems bool) {
-	var err error
+func ParseParams(c *gin.Context) (params map[string]interface{}, err error) {
+	params = make(map[string]interface{})
+	var pageNum, pageSize int
+	var showPoems, desc bool
 	pageNum, err = strconv.Atoi(c.Query("pageNum"))
 	if err != nil {
 		pageNum = 1
@@ -30,14 +33,13 @@ func ParseParams(c *gin.Context) (pageNum, pageSize int, showPoems bool) {
 	case pageSize <= 0:
 		pageSize = 10
 	}
+	params["pageSize"] = pageSize
+	params["pageNum"] = pageNum
 
-	showPoems_ := c.Query("showPoems")
-	switch showPoems_ {
-	case "true", "True", "1", "yes":
-		showPoems = true
-	default:
-		showPoems = false
-	}
+	showPoems = trans2Bool(c.Query("showPoems"))
+	params["showPoems"] = showPoems
+	desc = trans2Bool(c.Query("desc"))
+	params["desc"] = desc
 	return
 }
 
@@ -52,16 +54,17 @@ func GetReqBody(c *gin.Context) string {
 	return "123"
 }
 
-func GetLikeMode(c *gin.Context) string {
-	mode := c.Query("type")
-	switch mode {
-	case "shijing":
-		return mode
-	case "poem":
-		return mode
-	case "lunyu":
-		return mode
+// getBool judge bs  boolstring whether is bool
+func trans2Bool(bs string) bool {
+	switch bs {
+	case "true", "True", "1", "yes":
+		return true
 	default:
-		return "poem"
+		return false
 	}
+}
+
+func GeneratorUUID() string {
+	id := uuid.NewV4()
+	return id.String()
 }

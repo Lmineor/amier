@@ -121,8 +121,8 @@ func (t *T) DefaultF(ch chan struct{}) error {
 	if err != nil {
 		return err
 	}
-	// build
 
+	// build
 	switch runtime.GOOS {
 	case "windows":
 		buildCmd = exec.Command("go", "build", "-o", "server.exe", "main.go")

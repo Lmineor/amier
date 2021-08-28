@@ -1,17 +1,20 @@
 package service
 
 import (
-	"fmt"
 	"ziyue/global"
 	"ziyue/model"
 )
 
-func GetLikePoems(pageNum, pageSize int) (poemsLike []model.Poem, total int64, err error) {
-	limit := pageSize
-	offset := (pageNum - 1) * pageSize
-	fmt.Printf("limit is %d, offset is %d", limit, offset)
+func GetPoems(params map[string]interface{}) (poems []model.Poem, total int64, err error) {
+	limit := params["pageSize"].(int)
+	offset := (params["pageNum"].(int) - 1) * limit
+	desc := params["desc"].(bool)
 	db := global.Z_DB.Model(&model.Poem{})
 	err = db.Count(&total).Error
-	err = db.Order("ilike desc").Limit(limit).Offset(offset).Find(&poemsLike).Error
+	if desc {
+		err = db.Order("ilike desc").Limit(limit).Offset(offset).Find(&poems).Error
+	} else {
+		err = db.Limit(limit).Offset(offset).Find(&poems).Error
+	}
 	return
 }

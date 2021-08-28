@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"go.uber.org/zap"
 	"ziyue/global"
 	"ziyue/model"
 	"ziyue/utils"
@@ -15,10 +16,11 @@ func GetPoetInfo(uuid string) (poet model.Poet, err error) {
 	return
 }
 
-func GetPoets(pageNum, pageSize int, showPoems bool) (list []model.Poet, total int64, err error) {
-	limit := pageSize
-	offset := (pageNum - 1) * pageSize
-
+func GetPoets(params map[string]interface{}) (list []model.Poet, total int64, err error) {
+	limit := params["pageSize"].(int)
+	offset := (params["pageNum"].(int) - 1) * limit
+	showPoems := params["showPoems"].(bool)
+	global.Z_LOG.Info("msg:", zap.Any("showpoems", showPoems))
 	db := global.Z_DB.Model(&model.Poet{})
 	err = db.Count(&total).Error
 	if showPoems {

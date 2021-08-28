@@ -1,7 +1,6 @@
 package z
 
 import (
-	"fmt"
 	"os"
 	"ziyue/utils"
 
@@ -11,17 +10,16 @@ import (
 // runCmd represents the run command
 var runCmd = &cobra.Command{
 	Use:   "run",
-	Short: "running go codes with hot-compiled-like feature",
+	Short: "run ziyue server.",
 	Long: `
-	The "run" command is used for running go codes with hot-compiled-like feature,     
+	The "run" command is used for running ziyue server with hot-compiled-like feature,     
 	which compiles and runs the go codes asynchronously when codes change.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		w := utils.NewWatch()
 		t := utils.NewT()
-		path, _ := os.Getwd()
-		fmt.Println(path)
-		go w.Watch(path, t)
+		cmdPath, _ := os.Getwd()
+		go w.Watch(cmdPath, t)
 		t.RunTask()
 	},
 }

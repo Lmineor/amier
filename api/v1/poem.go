@@ -63,6 +63,21 @@ func UpdatePoem(c *gin.Context) {
 
 }
 
+// GetPoems return poems info
 func GetPoems(c *gin.Context) {
-	//GetLikes(c)
+	var poems []model.Poem
+	var total int64
+	parsedPoems := make([]response.PoemResponse, 0) //声明并完成切片的初始化
+	respMap := make(map[string]interface{})         //声明并完成map的初始化
+
+	params, _ := utils.ParseParams(c)
+	poems, total, _ = service.GetPoems(params)
+	respMap["total"] = total
+	for _, poem := range poems {
+		pUUID, _ := service.GetPoetUUID(poem.ID)
+		parsedPoems = append(parsedPoems, *utils.ParsePoemSplit(&poem, pUUID))
+	}
+	respMap["poems"] = parsedPoems
+	respMap["total"] = total
+	response.OkWithData(respMap, c)
 }
